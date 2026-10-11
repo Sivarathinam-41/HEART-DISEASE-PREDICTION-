@@ -4,6 +4,8 @@ from heart_disease_model import (
     predict_heart_disease,
     get_metrics,
     get_demo_presets,
+    generate_clinical_recommendations,
+    get_cardio_chat_response,
     FEATURE_ORDER
 )
 
@@ -67,16 +69,63 @@ def predict():
 
 @app.route('/api/predict', methods=['POST'])
 def api_predict():
-    """JSON API endpoint for model inference."""
+    """JSON API endpoint for model inference with automated clinical recommendations."""
     try:
         data = request.get_json(force=True, silent=False)
         if not data:
             return jsonify({'success': False, 'error': 'No JSON payload provided'}), 400
 
         result = predict_heart_disease(data)
+        recommendations = generate_clinical_recommendations(data, result)
+        result['recommendations'] = recommendations
+
         return jsonify({
             'success': True,
             'data': result
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 400
+
+@app.route('/api/chat', methods=['POST'])
+def api_chat():
+    """CardioBot AI assistant conversational endpoint."""
+    try:
+        payload = request.get_json(force=True, silent=False) or {}
+        message = payload.get('message', '')
+        patient_data = payload.get('patient_data', {})
+        risk_result = payload.get('risk_result', {})
+
+        if not message.strip():
+            return jsonify({'success': False, 'error': 'Message cannot be empty'}), 400
+
+        reply = get_cardio_chat_response(message, patient_data, risk_result)
+        return jsonify({
+            'success': True,
+            'response': reply
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 400
+
+@app.route('/api/recommendations', methods=['POST'])
+def api_recommendations():
+    """Endpoint for generating personalized lifestyle and medical recommendations."""
+    try:
+        payload = request.get_json(force=True, silent=False) or {}
+        patient_data = payload.get('patient_data', {})
+        risk_result = payload.get('risk_result', {})
+
+        recs = generate_clinical_recommendations(patient_data, risk_result)
+        return jsonify({
+            'success': True,
+            'data': recs
         }), 200
 
     except Exception as e:

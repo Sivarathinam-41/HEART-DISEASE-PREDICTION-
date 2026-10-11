@@ -3,406 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CardioSense AI — Heart Disease Prediction Web System</title>
-  <meta name="description" content="Machine Learning clinical screening tool for coronary artery disease risk assessment based on physiological markers.">
+  <title>CardioSense AI — Clinical Screening & AI Health Intelligence</title>
+  <meta name="description" content="AI-assisted clinical decision support system for cardiovascular screening, personalized lifestyle recommendations, and interactive cardiac assistance.">
   
-  <!-- Modern Fonts -->
+  <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Fallback External Stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-  <!-- Inlined Bulletproof Design System (Guarantees zero unstyled HTML on Vercel/Cloud) -->
-  <style>
-    :root {
-      --bg-primary: #0b1329;
-      --bg-secondary: #132042;
-      --bg-card: rgba(19, 32, 66, 0.82);
-      --bg-card-border: rgba(56, 189, 248, 0.22);
-      --bg-input: #1a294e;
-      --border-input: #2e4170;
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      --text-dim: #64748b;
-      --accent-cyan: #38bdf8;
-      --accent-blue: #2563eb;
-      --accent-indigo: #6366f1;
-      --risk-low: #10b981;
-      --risk-med: #f59e0b;
-      --risk-high: #f43f5e;
-      --shadow-card: 0 20px 40px -15px rgba(2, 6, 23, 0.7);
-      --radius-lg: 18px;
-      --radius-md: 12px;
-      --radius-sm: 8px;
-      --transition-fast: 0.2s ease;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: var(--bg-primary);
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.2) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
-      background-attachment: fixed;
-      color: var(--text-main);
-      min-height: 100vh;
-      line-height: 1.6;
-      padding: 30px 15px 50px;
-    }
-
-    .app-wrapper { max-width: 1100px; margin: 0 auto; }
-
-    .header-hero { text-align: center; margin-bottom: 35px; }
-
-    .brand-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 16px;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 999px;
-      color: var(--accent-cyan);
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-      backdrop-filter: blur(8px);
-    }
-
-    .brand-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 2.8rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
-    }
-
-    .brand-subtitle {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      max-width: 680px;
-      margin: 0 auto;
-    }
-
-    .glass-panel {
-      background: var(--bg-card);
-      border: 1px solid var(--bg-card-border);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-card);
-      padding: 32px;
-      margin-bottom: 30px;
-    }
-
-    .presets-section {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 15px;
-      padding-bottom: 24px;
-      margin-bottom: 28px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .presets-label {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--accent-cyan);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .preset-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-
-    .btn-preset {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-input);
-      color: var(--text-main);
-      padding: 8px 16px;
-      border-radius: var(--radius-sm);
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition-fast);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-preset:hover, .btn-preset.active {
-      background: rgba(56, 189, 248, 0.2);
-      border-color: var(--accent-cyan);
-      color: #ffffff;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-    }
-
-    .form-group { display: flex; flex-direction: column; gap: 7px; }
-
-    .field-label {
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .field-hint { font-size: 0.75rem; color: var(--text-dim); font-weight: normal; }
-
-    .form-control-custom {
-      width: 100%;
-      padding: 11px 14px;
-      background: var(--bg-input);
-      border: 1px solid var(--border-input);
-      border-radius: var(--radius-sm);
-      color: #ffffff;
-      font-size: 0.92rem;
-      font-family: inherit;
-      transition: var(--transition-fast);
-    }
-
-    .form-control-custom:focus {
-      outline: none;
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-      background: #1e305b;
-    }
-
-    select.form-control-custom option {
-      background: var(--bg-secondary);
-      color: #ffffff;
-    }
-
-    .submit-container { margin-top: 32px; text-align: center; }
-
-    .btn-primary-action {
-      background: linear-gradient(135deg, #2563eb, #0284c7);
-      color: #ffffff;
-      border: none;
-      padding: 15px 42px;
-      border-radius: var(--radius-md);
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 0.3px;
-      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.5);
-      transition: all 0.25s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .btn-primary-action:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 32px -5px rgba(37, 99, 235, 0.7);
-      background: linear-gradient(135deg, #1d4ed8, #0369a1);
-    }
-
-    .btn-primary-action:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .result-card {
-      border-left: 6px solid var(--accent-cyan);
-      background: rgba(15, 23, 42, 0.95);
-      margin-top: 28px;
-      padding: 28px;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-card);
-      animation: fadeIn 0.4s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .result-card.risk-low, .result-card.risk-success {
-      border-left-color: var(--risk-low);
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(15, 23, 42, 0.95));
-    }
-
-    .result-card.risk-moderate, .result-card.risk-warning {
-      border-left-color: var(--risk-med);
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(15, 23, 42, 0.95));
-    }
-
-    .result-card.risk-high, .result-card.risk-danger {
-      border-left-color: var(--risk-high);
-      background: linear-gradient(135deg, rgba(244, 63, 94, 0.12), rgba(15, 23, 42, 0.95));
-    }
-
-    .result-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .result-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 18px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 1.15rem;
-    }
-
-    .result-badge.badge-success {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.4);
-    }
-
-    .result-badge.badge-warning {
-      background: rgba(245, 158, 11, 0.2);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.4);
-    }
-
-    .result-badge.badge-danger {
-      background: rgba(244, 63, 94, 0.2);
-      color: #fb7185;
-      border: 1px solid rgba(244, 63, 94, 0.4);
-    }
-
-    .prob-meter-wrapper { margin-bottom: 20px; }
-
-    .prob-meter-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .prob-bar-container {
-      height: 14px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 999px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .prob-bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .prob-bar-fill.fill-low, .prob-bar-fill.fill-success { background: linear-gradient(90deg, #10b981, #34d399); }
-    .prob-bar-fill.fill-warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-    .prob-bar-fill.fill-high, .prob-bar-fill.fill-danger { background: linear-gradient(90deg, #e11d48, #f43f5e); }
-
-    .factors-box {
-      background: rgba(255, 255, 255, 0.04);
-      padding: 18px;
-      border-radius: var(--radius-sm);
-      margin-top: 15px;
-    }
-
-    .factors-title {
-      font-size: 0.88rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--accent-cyan);
-      margin-bottom: 10px;
-    }
-
-    .factors-list { list-style: none; padding: 0; }
-
-    .factors-list li {
-      font-size: 0.92rem;
-      color: var(--text-main);
-      padding: 5px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .factors-list li::before {
-      content: "•";
-      color: var(--accent-cyan);
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
-
-    .metrics-section {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .metric-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: var(--radius-md);
-      padding: 18px;
-      text-align: center;
-    }
-
-    .metric-val {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.85rem;
-      font-weight: 700;
-      color: var(--accent-cyan);
-    }
-
-    .metric-name {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 4px;
-    }
-
-    .disclaimer-card {
-      margin-top: 35px;
-      padding: 18px 24px;
-      border-radius: var(--radius-md);
-      background: rgba(2, 6, 23, 0.6);
-      border: 1px dashed rgba(255, 255, 255, 0.15);
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      font-size: 0.82rem;
-      color: var(--text-dim);
-    }
-
-    .disclaimer-icon { font-size: 1.3rem; line-height: 1; }
-
-    @media (max-width: 768px) {
-      .brand-title { font-size: 2.2rem; }
-      .glass-panel { padding: 22px; }
-      .form-grid { grid-template-columns: 1fr; }
-      .presets-section { flex-direction: column; align-items: flex-start; }
-    }
-  </style>
 </head>
 <body>
 
@@ -411,402 +20,415 @@
   <!-- Header -->
   <header class="header-hero">
     <div class="brand-badge">
-      <span>●</span> Machine Learning Decision Support System
+      <span>●</span> Machine Learning Decision Support & Clinical AI
     </div>
     <h1 class="brand-title">CardioSense AI</h1>
     <p class="brand-subtitle">
-      Automated clinical screening for cardiovascular risk prediction using regularized Random Forest pipelines and 5-fold cross-validated diagnostic markers.
+      Comprehensive cardiovascular intelligence platform featuring 1,190-patient regularized Random Forest screening, personalized clinical interventions, and interactive CardioBot assistance.
     </p>
   </header>
 
-  <!-- Main Card -->
-  <main class="glass-panel">
-    
-    <!-- Presets Bar for Instant College Teacher Demos -->
-    <section class="presets-section">
-      <div class="presets-label">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7.5" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-        Instant Demo Presets:
-      </div>
-      <div class="preset-buttons">
-        <button type="button" class="btn-preset" id="preset-healthy" onclick="loadPreset('healthy')">
-          🟢 Low Risk Screening
-        </button>
-        <button type="button" class="btn-preset" id="preset-moderate" onclick="loadPreset('moderate')">
-          🟡 Borderline Risk Case
-        </button>
-        <button type="button" class="btn-preset" id="preset-high" onclick="loadPreset('high')">
-          🔴 High Risk Cardiac Case
-        </button>
-      </div>
-    </section>
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs" aria-label="Main Navigation">
+    <button type="button" class="nav-tab-btn active" id="btn-tab-screening" onclick="switchTab('screening')">
+      🩺 Risk Screening
+    </button>
+    <button type="button" class="nav-tab-btn" id="btn-tab-recommendations" onclick="switchTab('recommendations')">
+      💡 AI Health Suggestions
+    </button>
+    <button type="button" class="nav-tab-btn" id="btn-tab-chat" onclick="switchTab('chat')">
+      🤖 CardioBot Assistant
+    </button>
+    <button type="button" class="nav-tab-btn" id="btn-tab-benchmark" onclick="switchTab('benchmark')">
+      📊 Model Benchmark
+    </button>
+  </nav>
 
-    <!-- Health Parameters Form -->
-    <form id="prediction-form" action="/predict" method="POST">
-      <div class="form-grid">
-
-        <!-- Age -->
-        <div class="form-group">
-          <label for="input-age" class="field-label">
-            Age <span class="field-hint">(20 – 100 yrs)</span>
-          </label>
-          <input type="number" id="input-age" name="age" min="20" max="100" class="form-control-custom"
-                 value="{{ form_values.age if form_values and form_values.age is defined else '52' }}" required>
+  <!-- TAB 1: Screening & Prediction -->
+  <section id="tab-screening" class="tab-pane active">
+    <main class="glass-panel">
+      
+      <!-- Presets Bar -->
+      <div class="presets-section">
+        <div class="presets-label">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7.5" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          Instant Demo Presets:
         </div>
-
-        <!-- Sex -->
-        <div class="form-group">
-          <label for="input-sex" class="field-label">Biological Sex</label>
-          <select id="input-sex" name="sex" class="form-control-custom" required>
-            <option value="1" {% if form_values and form_values.sex|string in ['1', '1.0'] %}selected{% endif %}>Male</option>
-            <option value="0" {% if form_values and form_values.sex|string in ['0', '0.0'] %}selected{% endif %}>Female</option>
-          </select>
+        <div class="preset-buttons">
+          <button type="button" class="btn-preset" id="preset-healthy" onclick="loadPreset('healthy')">
+            🟢 Low Risk Screening
+          </button>
+          <button type="button" class="btn-preset" id="preset-moderate" onclick="loadPreset('moderate')">
+            🟡 Borderline Risk Case
+          </button>
+          <button type="button" class="btn-preset" id="preset-high" onclick="loadPreset('high')">
+            🔴 High Risk Cardiac Case
+          </button>
         </div>
-
-        <!-- Chest Pain Type (cp) -->
-        <div class="form-group">
-          <label for="input-cp" class="field-label">
-            Chest Pain Type <span class="field-hint">(Angina class)</span>
-          </label>
-          <select id="input-cp" name="cp" class="form-control-custom" required>
-            <option value="0" {% if form_values and form_values.cp|string in ['0', '0.0'] %}selected{% endif %}>Typical Angina (0)</option>
-            <option value="1" {% if form_values and form_values.cp|string in ['1', '1.0'] %}selected{% endif %}>Atypical Angina (1)</option>
-            <option value="2" {% if form_values and form_values.cp|string in ['2', '2.0'] %}selected{% endif %}>Non-anginal Pain (2)</option>
-            <option value="3" {% if form_values and form_values.cp|string in ['3', '3.0'] %}selected{% endif %}>Asymptomatic (3)</option>
-          </select>
-        </div>
-
-        <!-- Resting BP (trestbps) -->
-        <div class="form-group">
-          <label for="input-trestbps" class="field-label">
-            Resting Blood Pressure <span class="field-hint">(mmHg)</span>
-          </label>
-          <input type="number" id="input-trestbps" name="trestbps" min="80" max="230" class="form-control-custom"
-                 value="{{ form_values.trestbps if form_values and form_values.trestbps is defined else '125' }}" required>
-        </div>
-
-        <!-- Cholesterol (chol) -->
-        <div class="form-group">
-          <label for="input-chol" class="field-label">
-            Serum Cholesterol <span class="field-hint">(mg/dl)</span>
-          </label>
-          <input type="number" id="input-chol" name="chol" min="100" max="600" class="form-control-custom"
-                 value="{{ form_values.chol if form_values and form_values.chol is defined else '210' }}" required>
-        </div>
-
-        <!-- Fasting Blood Sugar (fbs) -->
-        <div class="form-group">
-          <label for="input-fbs" class="field-label">
-            Fasting Blood Sugar <span class="field-hint">(> 120 mg/dl)</span>
-          </label>
-          <select id="input-fbs" name="fbs" class="form-control-custom" required>
-            <option value="0" {% if form_values and form_values.fbs|string in ['0', '0.0'] %}selected{% endif %}>Normal (≤ 120 mg/dl)</option>
-            <option value="1" {% if form_values and form_values.fbs|string in ['1', '1.0'] %}selected{% endif %}>Elevated (> 120 mg/dl)</option>
-          </select>
-        </div>
-
-        <!-- Resting ECG (restecg) -->
-        <div class="form-group">
-          <label for="input-restecg" class="field-label">Resting ECG Results</label>
-          <select id="input-restecg" name="restecg" class="form-control-custom" required>
-            <option value="0" {% if form_values and form_values.restecg|string in ['0', '0.0'] %}selected{% endif %}>Normal (0)</option>
-            <option value="1" {% if form_values and form_values.restecg|string in ['1', '1.0'] %}selected{% endif %}>ST-T Wave Abnormality (1)</option>
-            <option value="2" {% if form_values and form_values.restecg|string in ['2', '2.0'] %}selected{% endif %}>Left Ventricular Hypertrophy (2)</option>
-          </select>
-        </div>
-
-        <!-- Max Heart Rate (thalach) -->
-        <div class="form-group">
-          <label for="input-thalach" class="field-label">
-            Max Heart Rate Achieved <span class="field-hint">(bpm)</span>
-          </label>
-          <input type="number" id="input-thalach" name="thalach" min="60" max="230" class="form-control-custom"
-                 value="{{ form_values.thalach if form_values and form_values.thalach is defined else '155' }}" required>
-        </div>
-
-        <!-- Exercise Induced Angina (exang) -->
-        <div class="form-group">
-          <label for="input-exang" class="field-label">Exercise Induced Angina</label>
-          <select id="input-exang" name="exang" class="form-control-custom" required>
-            <option value="0" {% if form_values and form_values.exang|string in ['0', '0.0'] %}selected{% endif %}>No (0)</option>
-            <option value="1" {% if form_values and form_values.exang|string in ['1', '1.0'] %}selected{% endif %}>Yes (1)</option>
-          </select>
-        </div>
-
-        <!-- ST Depression (oldpeak) -->
-        <div class="form-group">
-          <label for="input-oldpeak" class="field-label">
-            ST Depression (Oldpeak) <span class="field-hint">(mm)</span>
-          </label>
-          <input type="number" step="0.1" id="input-oldpeak" name="oldpeak" min="0.0" max="7.0" class="form-control-custom"
-                 value="{{ form_values.oldpeak if form_values and form_values.oldpeak is defined else '0.6' }}" required>
-        </div>
-
-        <!-- Slope -->
-        <div class="form-group">
-          <label for="input-slope" class="field-label">Peak Exercise ST Slope</label>
-          <select id="input-slope" name="slope" class="form-control-custom" required>
-            <option value="0" {% if form_values and form_values.slope|string in ['0', '0.0'] %}selected{% endif %}>Upsloping (0)</option>
-            <option value="1" {% if form_values and form_values.slope|string in ['1', '1.0'] %}selected{% endif %}>Flat (1)</option>
-            <option value="2" {% if form_values and form_values.slope|string in ['2', '2.0'] %}selected{% endif %}>Downsloping (2)</option>
-          </select>
-        </div>
-
-        <!-- Major Vessels (ca) -->
-        <div class="form-group">
-          <label for="input-ca" class="field-label">
-            Major Vessels Colored <span class="field-hint">(0 – 3)</span>
-          </label>
-          <select id="input-ca" name="ca" class="form-control-custom" required>
-            <option value="0" {% if form_values and form_values.ca|string in ['0', '0.0'] %}selected{% endif %}>0 Vessels (Clear)</option>
-            <option value="1" {% if form_values and form_values.ca|string in ['1', '1.0'] %}selected{% endif %}>1 Vessel Colored</option>
-            <option value="2" {% if form_values and form_values.ca|string in ['2', '2.0'] %}selected{% endif %}>2 Vessels Colored</option>
-            <option value="3" {% if form_values and form_values.ca|string in ['3', '3.0'] %}selected{% endif %}>3 Vessels Colored</option>
-          </select>
-        </div>
-
-        <!-- Thalassemia (thal) -->
-        <div class="form-group">
-          <label for="input-thal" class="field-label">Thalassemia Screening</label>
-          <select id="input-thal" name="thal" class="form-control-custom" required>
-            <option value="1" {% if form_values and form_values.thal|string in ['1', '1.0'] %}selected{% endif %}>Normal Flow (1)</option>
-            <option value="2" {% if form_values and form_values.thal|string in ['2', '2.0'] %}selected{% endif %}>Fixed Defect (2)</option>
-            <option value="3" {% if form_values and form_values.thal|string in ['3', '3.0'] %}selected{% endif %}>Reversible Defect (3)</option>
-          </select>
-        </div>
-
       </div>
 
-      <!-- Submit Button -->
-      <div class="submit-container">
-        <button type="submit" id="btn-submit-prediction" class="btn-primary-action">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          <span id="btn-label">Run Cardiovascular Analysis</span>
-        </button>
+      <!-- Health Parameters Form -->
+      <form id="prediction-form" action="/predict" method="POST">
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label for="input-age" class="field-label">Age <span class="field-hint">(20 – 100 yrs)</span></label>
+            <input type="number" id="input-age" name="age" min="20" max="100" class="form-control-custom" value="52" required>
+          </div>
+
+          <div class="form-group">
+            <label for="input-sex" class="field-label">Biological Sex</label>
+            <select id="input-sex" name="sex" class="form-control-custom" required>
+              <option value="1" selected>Male</option>
+              <option value="0">Female</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-cp" class="field-label">Chest Pain Type <span class="field-hint">(Angina class)</span></label>
+            <select id="input-cp" name="cp" class="form-control-custom" required>
+              <option value="0" selected>Typical Angina (0)</option>
+              <option value="1">Atypical Angina (1)</option>
+              <option value="2">Non-anginal Pain (2)</option>
+              <option value="3">Asymptomatic (3)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-trestbps" class="field-label">Resting Blood Pressure <span class="field-hint">(mmHg)</span></label>
+            <input type="number" id="input-trestbps" name="trestbps" min="80" max="230" class="form-control-custom" value="125" required>
+          </div>
+
+          <div class="form-group">
+            <label for="input-chol" class="field-label">Serum Cholesterol <span class="field-hint">(mg/dl)</span></label>
+            <input type="number" id="input-chol" name="chol" min="100" max="600" class="form-control-custom" value="210" required>
+          </div>
+
+          <div class="form-group">
+            <label for="input-fbs" class="field-label">Fasting Blood Sugar <span class="field-hint">(> 120 mg/dl)</span></label>
+            <select id="input-fbs" name="fbs" class="form-control-custom" required>
+              <option value="0" selected>Normal (≤ 120 mg/dl)</option>
+              <option value="1">Elevated (> 120 mg/dl)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-restecg" class="field-label">Resting ECG Results</label>
+            <select id="input-restecg" name="restecg" class="form-control-custom" required>
+              <option value="0" selected>Normal (0)</option>
+              <option value="1">ST-T Wave Abnormality (1)</option>
+              <option value="2">Left Ventricular Hypertrophy (2)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-thalach" class="field-label">Max Heart Rate <span class="field-hint">(bpm)</span></label>
+            <input type="number" id="input-thalach" name="thalach" min="60" max="230" class="form-control-custom" value="155" required>
+          </div>
+
+          <div class="form-group">
+            <label for="input-exang" class="field-label">Exercise Induced Angina</label>
+            <select id="input-exang" name="exang" class="form-control-custom" required>
+              <option value="0" selected>No (0)</option>
+              <option value="1">Yes (1)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-oldpeak" class="field-label">ST Depression (Oldpeak) <span class="field-hint">(mm)</span></label>
+            <input type="number" step="0.1" id="input-oldpeak" name="oldpeak" min="0.0" max="7.0" class="form-control-custom" value="0.6" required>
+          </div>
+
+          <div class="form-group">
+            <label for="input-slope" class="field-label">Peak ST Slope</label>
+            <select id="input-slope" name="slope" class="form-control-custom" required>
+              <option value="0">Upsloping (0)</option>
+              <option value="1">Flat (1)</option>
+              <option value="2" selected>Downsloping (2)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-ca" class="field-label">Major Vessels Colored <span class="field-hint">(0 – 3)</span></label>
+            <select id="input-ca" name="ca" class="form-control-custom" required>
+              <option value="0" selected>0 Vessels (Clear)</option>
+              <option value="1">1 Vessel</option>
+              <option value="2">2 Vessels</option>
+              <option value="3">3 Vessels</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-thal" class="field-label">Thalassemia Perfusion</label>
+            <select id="input-thal" name="thal" class="form-control-custom" required>
+              <option value="1">Normal (1)</option>
+              <option value="2" selected>Fixed Defect (2)</option>
+              <option value="3">Reversible Defect (3)</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="submit-container">
+          <button type="submit" id="btn-submit-prediction" class="btn-primary-action">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span id="btn-label">Run Cardiovascular Analysis</span>
+          </button>
+        </div>
+      </form>
+
+      <div id="error-card" class="result-card risk-high" style="display:none; margin-top:20px;">
+        <h3 style="color:#fb7185;">Validation Error</h3>
+        <p id="error-text" style="margin-top:6px; color:#f1f5f9;"></p>
       </div>
-    </form>
 
-    <!-- Error Banner -->
-    <div id="error-card" class="result-card risk-high" style="{% if not error_message %}display:none;{% endif %} margin-top:20px;">
-      <h3 style="color:#fb7185;">Validation Error</h3>
-      <p id="error-text" style="margin-top:6px; color:#f1f5f9;">{{ error_message if error_message else '' }}</p>
-    </div>
+      <div id="results-container"></div>
+    </main>
+  </section>
 
-    <!-- Live / Server-Rendered Prediction Results Container -->
-    <div id="results-container">
-      {% if prediction_result %}
-      <section id="results-section" class="result-card risk-{{ prediction_result.badge_class }}">
-        <div class="result-header">
-          <div>
-            <span class="result-badge badge-{{ prediction_result.badge_class }}">
-              {{ prediction_result.icon }} {{ prediction_result.risk_level }}
-            </span>
-          </div>
-          <div style="text-align: right;">
-            <div style="font-size: 0.85rem; color: var(--text-muted);">Estimated Disease Risk Probability</div>
-            <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff;">
-              {{ prediction_result.risk_percentage }}%
-            </div>
-          </div>
+  <!-- TAB 2: AI Health Recommendations -->
+  <section id="tab-recommendations" class="tab-pane">
+    <div class="glass-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+        <div>
+          <h2 style="font-size:1.4rem; font-weight:700; color:#ffffff;">💡 Personalized Cardiovascular Interventions</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem;">Tailored nutrition, physical conditioning, and clinical goals derived from your physiological markers.</p>
         </div>
-
-        <div class="prob-meter-wrapper">
-          <div class="prob-meter-labels">
-            <span>0% (Low Risk)</span>
-            <span>50% (Threshold)</span>
-            <span>100% (High Risk)</span>
-          </div>
-          <div class="prob-bar-container">
-            <div class="prob-bar-fill fill-{{ prediction_result.badge_class }}"
-                 style="width: {{ prediction_result.risk_percentage }}%;"></div>
-          </div>
+        <div id="rec-risk-badge" class="result-badge badge-warning">
+          ⚠️ Complete screening to personalize
         </div>
+      </div>
 
-        <p style="color: var(--text-main); font-size: 1rem; margin-bottom: 12px;">
-          {{ prediction_result.summary }}
-        </p>
+      <!-- Biomarker Target Card -->
+      <div class="rec-card" style="margin-bottom:22px;">
+        <div class="rec-card-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+          Patient Biomarker Status vs. Clinical Targets
+        </div>
+        <table class="biomarker-table">
+          <thead>
+            <tr>
+              <th>Diagnostic Biomarker</th>
+              <th>Current Input</th>
+              <th>Clinical Target</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="biomarker-table-body">
+            <tr>
+              <td><strong>Blood Pressure</strong></td>
+              <td>125 mmHg</td>
+              <td>&lt; 120/80 mmHg</td>
+              <td><span class="badge-status status-normal">Normal</span></td>
+            </tr>
+            <tr>
+              <td><strong>Serum Cholesterol</strong></td>
+              <td>210 mg/dL</td>
+              <td>&lt; 200 mg/dL</td>
+              <td><span class="badge-status status-elevated">Borderline</span></td>
+            </tr>
+            <tr>
+              <td><strong>ST Segment Response</strong></td>
+              <td>0.6 mm</td>
+              <td>&lt; 1.0 mm baseline</td>
+              <td><span class="badge-status status-normal">Stable</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <div class="factors-box">
-          <div class="factors-title">Patient Profile Clinical Drivers:</div>
-          <ul class="factors-list">
-            {% for factor in prediction_result.risk_factors %}
-            <li>{{ factor }}</li>
-            {% endfor %}
+      <div class="rec-grid">
+        <!-- Diet Card -->
+        <div class="rec-card">
+          <div class="rec-card-header">
+            🥗 Dietary & Nutritional Strategy
+          </div>
+          <ul class="rec-list" id="rec-diet-list">
+            <li>Adopt a Mediterranean dietary pattern emphasizing leafy greens, berries, legumes, and extra virgin olive oil.</li>
+            <li>Limit saturated fats to under 6% of daily caloric intake and eliminate trans fats to protect the arterial endothelial lining.</li>
+            <li>Incorporate soluble viscous fiber (oats, psyllium, beans) daily to actively bind bile acids and lower LDL cholesterol.</li>
           </ul>
         </div>
-      </section>
-      {% endif %}
-    </div>
 
-  </main>
+        <!-- Exercise Card -->
+        <div class="rec-card">
+          <div class="rec-card-header">
+            🏃 Physical Activity & Conditioning
+          </div>
+          <ul class="rec-list" id="rec-exercise-list">
+            <li>Aim for at least 150 minutes of moderate-intensity aerobic physical activity weekly (brisk walking, swimming, cycling).</li>
+            <li>Target safe aerobic training zone: 50%–70% of age-predicted maximum heart rate.</li>
+            <li>Incorporate 2 days per week of moderate resistance training to enhance insulin sensitivity and arterial compliance.</li>
+          </ul>
+        </div>
 
-  <!-- Model Performance Specs Card for College Reviewer -->
-  <aside class="glass-panel" style="padding: 24px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
-      <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff;">
-        🔬 Model Architecture & Validation Benchmark (Expanded Dataset)
-      </h2>
-      <span style="font-size: 0.8rem; color: var(--accent-cyan); background: rgba(56,189,248,0.1); padding: 4px 10px; border-radius: 999px;">
-        1,190 Patient Records • 5-Fold Stratified CV
-      </span>
-    </div>
-
-    <div class="metrics-section">
-      <div class="metric-card">
-        <div class="metric-val">87.7%</div>
-        <div class="metric-name">Cross-Validation Accuracy</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-val">89.5%</div>
-        <div class="metric-name">Holdout Test Accuracy</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-val">90.5%</div>
-        <div class="metric-name">Clinical Sensitivity / Recall</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-val">95.5%</div>
-        <div class="metric-name">ROC-AUC Score</div>
+        <!-- Medical Action Card -->
+        <div class="rec-card">
+          <div class="rec-card-header">
+            🩺 Clinical & Diagnostic Next Steps
+          </div>
+          <ul class="rec-list" id="rec-medical-list">
+            <li>Schedule routine annual cardiovascular screening with your primary care physician.</li>
+            <li>Monitor resting blood pressure and heart rate on a quarterly basis.</li>
+            <li>Consider an advanced lipid particle panel (ApoB and Lp(a)) to assess residual atherogenic risk.</li>
+          </ul>
+        </div>
       </div>
     </div>
-  </aside>
+  </section>
+
+  <!-- TAB 3: CardioBot AI Assistant -->
+  <section id="tab-chat" class="tab-pane">
+    <div class="glass-panel" style="padding: 24px;">
+      <div style="margin-bottom:18px;">
+        <h2 style="font-size:1.4rem; font-weight:700; color:#ffffff;">🤖 CardioBot AI Clinical Assistant</h2>
+        <p style="color:var(--text-muted); font-size:0.9rem;">Ask questions regarding your risk score, medical terminology, diagnostic ECG markers, or heart-healthy habits.</p>
+      </div>
+
+      <div class="chat-window">
+        <div class="chat-header">
+          <div class="chat-header-info">
+            <div class="chat-avatar">🫀</div>
+            <div>
+              <div style="font-weight:700; font-size:0.95rem; color:#ffffff;">CardioBot Intelligence Engine</div>
+              <div style="font-size:0.75rem; color:#34d399;">● Online • Clinical Decision Support System</div>
+            </div>
+          </div>
+          <span style="font-size:0.78rem; color:var(--text-dim); background:rgba(255,255,255,0.06); padding:4px 10px; border-radius:999px;">
+            Statlog-Cleveland Knowledge Base
+          </span>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg msg-bot">
+            👋 <strong>Hello! I am CardioBot</strong>, your cardiac intelligence assistant.<br><br>
+            I can explain your cardiovascular risk score, decode clinical markers like <em>ST depression (oldpeak)</em> and <em>thalassemia defects</em>, or suggest evidence-based lifestyle changes.<br><br>
+            How can I assist your cardiovascular wellness today?
+          </div>
+        </div>
+
+        <!-- Quick Question Chips -->
+        <div class="chat-chips-bar">
+          <button type="button" class="chat-chip" onclick="sendChatMessage('Explain my current risk score')">
+            📊 Explain my risk score
+          </button>
+          <button type="button" class="chat-chip" onclick="sendChatMessage('What does ST depression (oldpeak) mean?')">
+            📉 What is ST depression?
+          </button>
+          <button type="button" class="chat-chip" onclick="sendChatMessage('How can I lower my cholesterol naturally?')">
+            🥗 How to lower cholesterol?
+          </button>
+          <button type="button" class="chat-chip" onclick="sendChatMessage('What are the warning signs of a heart attack?')">
+            🚨 Heart attack symptoms
+          </button>
+          <button type="button" class="chat-chip" onclick="sendChatMessage('How accurate is this ML model?')">
+            🔬 Model architecture & accuracy
+          </button>
+        </div>
+
+        <div class="chat-input-bar">
+          <input type="text" id="chat-input-field" class="chat-input" placeholder="Type a heart health or medical parameter question..." autocomplete="off">
+          <button type="button" class="chat-send-btn" onclick="sendChatMessage()">
+            <span>Send</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 4: Model & Dataset Benchmark -->
+  <section id="tab-benchmark" class="tab-pane">
+    <div class="glass-panel">
+      <div style="margin-bottom:20px;">
+        <h2 style="font-size:1.4rem; font-weight:700; color:#ffffff;">📊 Dual Dataset Architecture & Benchmark Matrix</h2>
+        <p style="color:var(--text-muted); font-size:0.9rem;">Comparative evaluation between the 303-record Cleveland baseline and the 1,190-record expanded multi-center dataset.</p>
+      </div>
+
+      <div class="metrics-section" style="margin-bottom:25px;">
+        <div class="metric-card">
+          <div class="metric-val">1,190</div>
+          <div class="metric-name">Patient Dataset Size</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">87.7%</div>
+          <div class="metric-name">5-Fold CV Accuracy</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">89.5%</div>
+          <div class="metric-name">Holdout Test Accuracy</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">95.5%</div>
+          <div class="metric-name">ROC-AUC Discrimination</div>
+        </div>
+      </div>
+
+      <!-- Comparative Table -->
+      <div class="rec-card">
+        <div class="rec-card-header">
+          Detailed Academic Comparison Table
+        </div>
+        <table class="biomarker-table">
+          <thead>
+            <tr>
+              <th>Evaluation Parameter</th>
+              <th>Cleveland Benchmark (heart.csv)</th>
+              <th>Expanded Dataset (heart_expanded.csv)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Number of Patients</strong></td>
+              <td>303 records</td>
+              <td><strong>1,190 records (~4x expansion)</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Clinical Centers</strong></td>
+              <td>Cleveland Clinic Foundation</td>
+              <td><strong>Cleveland, Hungarian, Swiss, Long Beach, Statlog</strong></td>
+            </tr>
+            <tr>
+              <td><strong>5-Fold CV Accuracy</strong></td>
+              <td>83.49% (± 5.21%)</td>
+              <td><strong>87.65% (± 2.09%)</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Holdout Test Accuracy</strong></td>
+              <td>83.61%</td>
+              <td><strong>89.50%</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Sensitivity (Recall)</strong></td>
+              <td>90.91%</td>
+              <td><strong>90.48%</strong></td>
+            </tr>
+            <tr>
+              <td><strong>ROC-AUC Score</strong></td>
+              <td>91.55%</td>
+              <td><strong>95.53%</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Model Classifier</strong></td>
+              <td>Random Forest (150 trees, depth 5)</td>
+              <td><strong>Random Forest (150 trees, depth 6)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 
   <!-- Educational Medical Disclaimer -->
   <footer class="disclaimer-card">
     <div class="disclaimer-icon">ℹ️</div>
     <div>
-      <strong>Educational Project Disclaimer:</strong> This web application is an academic demonstration developed for university project evaluation using machine learning techniques on the UCI Cleveland Heart Disease dataset. It is not an FDA-cleared diagnostic device and should never replace qualified clinical judgment by licensed medical practitioners.
+      <strong>Educational Project Disclaimer:</strong> This web application is an academic demonstration developed for university project evaluation using machine learning techniques on cardiac datasets. It is not an FDA-cleared diagnostic device and should never replace qualified clinical judgment by licensed medical practitioners.
     </div>
   </footer>
 
 </div>
 
-<!-- Client-side Interactive Preset Handler & Asynchronous AJAX Predictor -->
-<script>
-const PRESETS = {
-  healthy: {
-    age: 38, sex: "0", cp: "0", trestbps: 118, chol: 180,
-    fbs: "0", restecg: "0", thalach: 175, exang: "0", oldpeak: 0.2,
-    slope: "2", ca: "0", thal: "1"
-  },
-  moderate: {
-    age: 54, sex: "1", cp: "1", trestbps: 135, chol: 235,
-    fbs: "0", restecg: "1", thalach: 148, exang: "0", oldpeak: 1.2,
-    slope: "1", ca: "1", thal: "2"
-  },
-  high: {
-    age: 65, sex: "1", cp: "3", trestbps: 160, chol: 286,
-    fbs: "1", restecg: "2", thalach: 108, exang: "1", oldpeak: 3.6,
-    slope: "1", ca: "2", thal: "3"
-  }
-};
-
-function loadPreset(key) {
-  const data = PRESETS[key];
-  if (!data) return;
-
-  // Active button styling
-  document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
-  const activeBtn = document.getElementById('preset-' + key);
-  if (activeBtn) activeBtn.classList.add('active');
-
-  for (const [field, val] of Object.entries(data)) {
-    const el = document.getElementById('input-' + field);
-    if (el) el.value = val;
-  }
-}
-
-// Client-side AJAX Prediction Handler (Provides instant SPA UX on Vercel)
-document.getElementById('prediction-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  const submitBtn = document.getElementById('btn-submit-prediction');
-  const btnLabel = document.getElementById('btn-label');
-  const errorCard = document.getElementById('error-card');
-  const resultsContainer = document.getElementById('results-container');
-
-  errorCard.style.display = 'none';
-  submitBtn.disabled = true;
-  btnLabel.textContent = 'Analyzing Diagnostic Indicators...';
-
-  // Harvest form data
-  const formData = new FormData(this);
-  const payload = {};
-  formData.forEach((val, key) => { payload[key] = parseFloat(val); });
-
-  try {
-    const response = await fetch('/api/predict', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const result = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.error || 'Prediction analysis failed.');
-    }
-
-    const data = result.data;
-    const badgeClass = data.badge_class || (data.risk_percentage < 35 ? 'success' : data.risk_percentage < 65 ? 'warning' : 'danger');
-
-    // Build dynamic results card
-    resultsContainer.innerHTML = `
-      <section id="results-section" class="result-card risk-${badgeClass}">
-        <div class="result-header">
-          <div>
-            <span class="result-badge badge-${badgeClass}">
-              ${data.icon} ${data.risk_level}
-            </span>
-          </div>
-          <div style="text-align: right;">
-            <div style="font-size: 0.85rem; color: var(--text-muted);">Estimated Disease Risk Probability</div>
-            <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff;">
-              ${data.risk_percentage}%
-            </div>
-          </div>
-        </div>
-
-        <div class="prob-meter-wrapper">
-          <div class="prob-meter-labels">
-            <span>0% (Low Risk)</span>
-            <span>50% (Threshold)</span>
-            <span>100% (High Risk)</span>
-          </div>
-          <div class="prob-bar-container">
-            <div class="prob-bar-fill fill-${badgeClass}" style="width: ${data.risk_percentage}%;"></div>
-          </div>
-        </div>
-
-        <p style="color: var(--text-main); font-size: 1rem; margin-bottom: 12px;">
-          ${data.summary}
-        </p>
-
-        <div class="factors-box">
-          <div class="factors-title">Patient Profile Clinical Drivers:</div>
-          <ul class="factors-list">
-            ${data.risk_factors.map(f => `<li>${f}</li>`).join('')}
-          </ul>
-        </div>
-      </section>
-    `;
-
-    // Smooth scroll to results
-    const resultsEl = document.getElementById('results-section');
-    if (resultsEl) {
-      resultsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-  } catch (err) {
-    // If client fetch fails (e.g. cross-origin), submit standard POST form
-    console.warn("Client fetch error, submitting via standard POST:", err);
-    this.submit();
-  } finally {
-    submitBtn.disabled = false;
-    btnLabel.textContent = 'Run Cardiovascular Analysis';
-  }
-});
-</script>
-
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
