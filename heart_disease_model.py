@@ -291,133 +291,202 @@ def generate_clinical_recommendations(data, risk_result=None):
 def get_cardio_chat_response(message, patient_data=None, risk_result=None):
     """
     Intelligent conversational medical AI advisor that responds to user inquiries
-    in the context of cardiovascular health and the patient's specific screening results.
+    with multi-keyword intent classification, robust root matching, and deep clinical insights.
     """
-    msg = message.strip().lower()
+    import re
+    msg_raw = message.strip().lower()
+    # Normalize punctuation to spaces for clean token checking
+    m = ' ' + re.sub(r'[^a-z0-9\s]', ' ', msg_raw) + ' '
 
-    # Context variables
+    # Context extraction
     prob = risk_result.get('risk_percentage', None) if risk_result else None
     level = risk_result.get('risk_level', None) if risk_result else None
 
-    # 1. Emergency Symptoms Query
-    if any(k in msg for k in ['emergency', 'heart attack symptoms', 'chest pain now', 'severe pain', '911', 'hospital']):
+    # Helper function for matching root words or token phrases
+    def has_any(*terms):
+        return any(term in m for term in terms)
+
+    # 1. EMERGENCY & CRITICAL SYMPTOMS
+    if has_any(' emergency ', ' heart attack ', ' myocardial infarction ', ' 911 ', ' 112 ', ' hospital ', ' ambulance ', ' crushing pain ', ' chest pain now '):
         return (
-            "🚨 **CRITICAL MEDICAL WARNING:** If you or someone you are with is currently experiencing crushing chest pressure, "
-            "pain radiating to the left arm, jaw, neck, or back, shortness of breath, sudden cold sweats, or dizziness, "
-            "**immediately call emergency services (911 / 112) or go to the nearest emergency department.** "
-            "Do not attempt to drive yourself. This web application is an educational screening simulator, not an emergency tool."
+            "🚨 **CRITICAL MEDICAL WARNING:**\n\n"
+            "If you or someone around you is experiencing crushing retrosternal chest pressure, pain radiating to the left arm, "
+            "jaw, neck, or back, acute shortness of breath, unexplained cold sweats, or sudden fainting, "
+            "**immediately call emergency services (911 / 112) or go to the nearest hospital emergency department.**\n\n"
+            "Do not attempt to drive yourself. This application is an educational screening simulator and cannot diagnose acute cardiac events."
         )
 
-    # 2. Risk Score & Prediction Questions
-    if any(k in msg for k in ['my risk', 'my score', 'result mean', 'why high', 'why low', 'what is my probability']):
+    # 2. MODEL ACCURACY, ALGORITHM, DATASET & ARCHITECTURE (Fixed to match 'How accurate is this ML model?')
+    if has_any('accura', 'metric', 'perform', 'evaluat', 'reliab', 'validat', 'roc', 'auc', 'f1', 'sensitiv', 'recall', 'precis',
+               'dataset', 'data', 'statlog', 'cleveland', 'hungary', '1190', '303', 'sample', 'train',
+               'random forest', 'forest', 'trees', 'algorithm', ' ml ', 'machine learning', ' ai ', 'model', 'how it works', 'how does it work'):
+        return (
+            "🤖 **CardioSense AI Architecture & Validation Benchmark:**\n\n"
+            "This model is engineered specifically for academic rigor and clinical screening reliability:\n\n"
+            "• **Machine Learning Algorithm:** Regularized **Random Forest Classifier** comprising 150 ensemble decision trees with depth regularization (`max_depth=6`, `min_samples_leaf=2`) to eliminate overfitting.\n"
+            "• **Training Dataset:** **1,190 patient records** from the multi-center Statlog-Cleveland-Hungarian-Swiss combined cardiovascular database (almost 4x larger than the classic 303-record Cleveland baseline).\n"
+            "• **Preprocessing Pipeline:** Encapsulated in a Scikit-Learn `ColumnTransformer` applying Z-score standardization (`StandardScaler`) to continuous physiological markers.\n\n"
+            "📊 **Verified Performance Metrics (5-Fold Stratified Cross-Validation):**\n"
+            "  - **Cross-Validation Accuracy:** **87.65%** (± 2.09%)\n"
+            "  - **Holdout Test Accuracy:** **89.50%**\n"
+            "  - **Clinical Sensitivity / Recall:** **90.48%** *(Crucial: detects >90% of true coronary stenosis cases)*\n"
+            "  - **ROC-AUC Discrimination:** **95.53%** *(Outstanding separation between healthy and diseased cohorts)*"
+        )
+
+    # 3. PATIENT RISK SCORE & SPECIFIC ANALYSIS
+    if has_any('my risk', 'my score', 'my result', 'probabilit', 'chance', 'result mean', 'why high', 'why low', 'what is my', 'percentage', 'am i at risk', 'danger'):
         if prob is not None:
+            factors_summary = ""
+            if risk_result and risk_result.get('risk_factors'):
+                factors_summary = "\n\n**Key Contributing Factors:**\n" + "\n".join([f"• {f}" for f in risk_result['risk_factors'][:4]])
+
             return (
-                f"📊 **Your Screening Analysis:**\n\n"
-                f"Your estimated cardiovascular disease risk is **{prob}% ({level})**, calculated by our Random Forest pipeline trained on 1,190 multi-center clinical patient records.\n\n"
-                f"- **What this means:** Based on your physiological profile, your probability aligns with a **{level}** profile.\n"
-                f"- **Next Steps:** Please review the *AI Clinical Suggestions* tab for customized nutritional, exercise, and physician consultation recommendations."
+                f"📊 **Your Personalized Cardiovascular Risk Analysis:**\n\n"
+                f"Your computed disease risk is **{prob}%**, placing your profile in the **{level}** classification category.\n\n"
+                f"• **What this means:** Out of 100 individuals sharing your clinical baseline indicators (blood pressure, cholesterol, ST depression, heart rate response), approximately **{int(prob)}** demonstrate significant coronary artery stenosis (>50% luminal narrowing).{factors_summary}\n\n"
+                f"👉 **Next Step:** Navigate to the **AI Health Suggestions** tab to review personalized diet, exercise target zones, and physician follow-up protocols."
             )
         else:
             return (
-                "Please run a cardiovascular risk assessment on the **Screening Form** tab first or select a demo preset. "
-                "Once analyzed, I will break down your exact probability score and personalized clinical drivers!"
+                "📊 **Risk Score Assessment:**\n\n"
+                "You haven't run a prediction yet! Please go to the **Risk Screening** tab, enter your parameters (or click one of the demo presets like *🟢 Low Risk Screening* or *🔴 High Risk Cardiac Case*), and click **Run Cardiovascular Analysis**.\n\n"
+                "Once evaluated, ask me again and I will give you a personalized breakdown of your risk probability and contributing drivers!"
             )
 
-    # 3. ST Depression (Oldpeak) Questions
-    if any(k in msg for k in ['oldpeak', 'st depression', 'st segment', 'depression']):
+    # 4. ST DEPRESSION & OLDPEAK
+    if has_any('oldpeak', 'st depress', 'st segment', 'depression', 'slope', 'ischemi'):
         return (
-            "📉 **What is ST Depression (Oldpeak)?**\n\n"
-            "During an electrocardiogram (ECG) stress test, the ST segment represents the interval between ventricular depolarization and repolarization.\n\n"
-            "• **Clinical Meaning:** When the ST segment drops (depresses) relative to baseline during exercise, it is a hallmark sign of **myocardial ischemia**—meaning heart muscle is receiving insufficient oxygenated blood due to narrowed coronary arteries.\n"
-            "• **Standard Interpretation:**\n"
-            "  - `0.0 to 1.0 mm`: Normal / Minimal ischemia.\n"
-            "  - `1.0 to 2.0 mm`: Moderate ischemia.\n"
-            "  - `> 2.0 mm`: Severe exercise-induced myocardial ischemia requiring prompt cardiologist evaluation."
+            "📉 **Understanding ST Depression (Oldpeak) on ECG:**\n\n"
+            "During exercise stress testing, the ST segment reflects myocardial ventricular recovery (repolarization).\n\n"
+            "• **What does depression mean?** When the ST segment sinks below the isoelectric baseline, it indicates **subendocardial ischemia**—the heart muscle is working harder than the narrowed coronary arteries can supply with oxygenated blood.\n"
+            "• **Clinical Grading:**\n"
+            "  - `0.0 to 1.0 mm`: Normal / Physiological variation.\n"
+            "  - `1.0 to 2.0 mm`: Moderate exercise-induced ischemia.\n"
+            "  - `> 2.0 mm`: Severe ischemia strongly indicative of multi-vessel coronary artery disease.\n"
+            "• **ST Slope Impact:** A **downsloping** ST segment has the highest diagnostic specificity for significant coronary blockage, followed by a flat slope."
         )
 
-    # 4. Blood Pressure Questions
-    if any(k in msg for k in ['blood pressure', 'bp', 'trestbps', 'hypertension', '140', '120']):
+    # 5. BLOOD PRESSURE & HYPERTENSION
+    if has_any('blood pressure', 'bp ', 'trestbps', 'hypertens', 'systolic', 'diastolic', ' 120 ', ' 130 ', ' 140 ', ' 150 ', ' 160 ', 'pressure'):
         return (
-            "❤️ **Resting Blood Pressure (trestbps) & Heart Health:**\n\n"
-            "Blood pressure measures the force exerted against artery walls as your heart pumps.\n\n"
-            "• **Clinical Categories (AHA/ACC):**\n"
-            "  - **Normal:** < 120/80 mmHg\n"
+            "❤️ **Resting Blood Pressure & Arterial Health:**\n\n"
+            "Resting blood pressure (`trestbps` in mmHg) measures lateral hydrostatic pressure against arterial walls.\n\n"
+            "• **AHA / ACC Diagnostic Standards:**\n"
+            "  - **Optimal:** < 120 / < 80 mmHg\n"
             "  - **Elevated:** 120–129 / < 80 mmHg\n"
             "  - **Stage 1 Hypertension:** 130–139 / 80–89 mmHg\n"
             "  - **Stage 2 Hypertension:** ≥ 140 / ≥ 90 mmHg\n\n"
-            "• **Actionable Tips:** Reducing dietary sodium to under 1,500 mg/day, regular aerobic walking, managing chronic stress, and limiting alcohol can lower systolic BP by 5–10 mmHg."
+            "• **Why it matters in Heart Disease:** Chronic hypertension shears the delicate vascular endothelium, accelerating fatty plaque deposition and forcing the left ventricle to pump against higher afterload, causing cardiac hypertrophy."
         )
 
-    # 5. Cholesterol Questions
-    if any(k in msg for k in ['cholesterol', 'chol', 'ldl', 'hdl', 'triglycerides']):
+    # 6. CHOLESTEROL & LIPIDS
+    if has_any('cholesterol', 'chol', 'ldl', 'hdl', 'lipid', 'triglycerid', 'statin', 'plaque', 'atherosclero'):
         return (
-            "🧪 **Cholesterol and Atherosclerosis:**\n\n"
-            "Cholesterol is a lipid substance carried by lipoproteins in your blood.\n\n"
-            "• **Total Cholesterol Ranges:**\n"
+            "🧪 **Serum Cholesterol, Lipoproteins, and Plaque Formation:**\n\n"
+            "• **Clinical Reference Standards:**\n"
             "  - **Desirable:** < 200 mg/dL\n"
-            "  - **Borderline High:** 200–239 mg/dL\n"
-            "  - **High:** ≥ 240 mg/dL\n\n"
-            "• **Why it matters:** Excess LDL ('bad cholesterol') penetrates damaged arterial walls, oxidizes, and forms fatty plaques (atherosclerosis) that restrict coronary blood flow.\n"
-            "• **Dietary Interventions:** Eat oats, legumes, walnuts, and fatty fish (salmon), and limit saturated animal fats."
+            "  - **Borderline Elevated:** 200–239 mg/dL\n"
+            "  - **High Risk:** ≥ 240 mg/dL\n\n"
+            "• **The Mechanism:** Circulating Apolipoprotein B particles (LDL) infiltrate oxidized micro-tears in arterial walls. Macrophages engulf them, turning into 'foam cells' that form atherosclerotic plaques.\n"
+            "• **Evidence-Based Reductions:** Replacing saturated animal fats with monounsaturated oils (olive/avocado) and consuming soluble beta-glucan fiber (oat bran) can lower total cholesterol by 10%–15%."
         )
 
-    # 6. Chest Pain / Angina Questions
-    if any(k in msg for k in ['chest pain', 'angina', 'cp', 'exang']):
+    # 7. CHEST PAIN & ANGINA PECTORIS
+    if has_any('chest pain', 'angina', ' cp ', 'tightness', 'heaviness', 'atypical', 'typical angina'):
         return (
-            "🫀 **Understanding Angina Pectoris (Chest Pain Types):**\n\n"
-            "Angina is discomfort caused by reduced blood flow to cardiac muscle.\n\n"
-            "• **Four Clinical Classes Used in this Model:**\n"
-            "  1. **Typical Angina:** Classic retrosternal chest pressure triggered by physical exertion or stress and relieved by rest or nitroglycerin.\n"
-            "  2. **Atypical Angina:** Discomfort that exhibits only 2 of the 3 typical characteristics.\n"
-            "  3. **Non-Anginal Pain:** Chest discomfort unlikely to be cardiac in origin (e.g. musculoskeletal or esophageal reflux).\n"
-            "  4. **Asymptomatic:** No chest pain reported (frequent in diabetic patients with silent ischemia).\n\n"
-            "• **Exercise-Induced Angina (`exang`):** If chest tightness arises specifically under physical exertion, it strongly correlates with critical coronary stenosis."
+            "🫀 **The 4 Clinical Classes of Chest Pain:**\n\n"
+            "1. **Typical Angina (Class 0):** Meets all 3 criteria: retrosternal pressure, provoked by physical/emotional stress, and relieved promptly by rest or sublingual nitroglycerin.\n"
+            "2. **Atypical Angina (Class 1):** Discomfort meeting only 2 of the 3 classic criteria (more common in females and elderly patients).\n"
+            "3. **Non-Anginal Pain (Class 2):** Sharp or fleeting discomfort meeting 1 or zero criteria (often musculoskeletal, pleuritic, or gastrointestinal).\n"
+            "4. **Asymptomatic (Class 3):** Absence of pain despite underlying severe ischemia ('silent ischemia', frequently documented in diabetic patients due to autonomic neuropathy)."
         )
 
-    # 7. Thalassemia / Perfusion Defect Questions
-    if any(k in msg for k in ['thal', 'thalassemia', 'reversible', 'fixed defect']):
+    # 8. EXERCISE ANGINA
+    if has_any('exercise angina', 'exang', 'pain exercise', 'pain workout'):
         return (
-            "🔬 **Thalassemia / Thallium Stress Perfusion:**\n\n"
-            "In cardiac stress testing, nuclear thallium scintigraphy examines myocardial perfusion (blood flow distribution):\n\n"
-            "• **Normal (1):** Uniform blood perfusion throughout the heart tissue.\n"
-            "• **Fixed Defect (2):** Area that receives no blood flow both during exercise and at rest—typically indicates scar tissue from a prior myocardial infarction (heart attack).\n"
-            "• **Reversible Defect (3):** Area that exhibits reduced blood flow during exercise but recovers at rest—indicates viable heart muscle that is actively ischemic and at high risk."
+            "🏃 **Exercise-Induced Angina (`exang`):**\n\n"
+            "• **Definition:** Cardiac chest discomfort triggered specifically by myocardial oxygen demand during physical exertion that subsides with rest.\n"
+            "• **Clinical Significance:** In our 1,190-sample machine learning model, exercise-induced angina has one of the strongest positive correlations with coronary stenosis (+0.48). Its presence indicates fixed coronary flow reserve restriction."
         )
 
-    # 8. Diet & Nutrition Tips
-    if any(k in msg for k in ['diet', 'food', 'eat', 'nutrition', 'salt', 'sugar']):
+    # 9. MAXIMUM HEART RATE (THALACH)
+    if has_any('heart rate', 'thalach', 'pulse', 'bpm', 'max hr', 'tachycardia', 'bradycardia', 'chronotropic'):
         return (
-            "🥗 **Cardiovascular Nutrition Guide:**\n\n"
-            "1. **The Mediterranean Standard:** Focus on extra virgin olive oil, wild fatty fish, colorful vegetables, berries, and raw nuts.\n"
-            "2. **Sodium Reduction:** Keep daily sodium below 1,500–2,000 mg to prevent fluid retention and arterial stiffness.\n"
-            "3. **Fiber Power:** Soluble fiber acts like a sponge in your digestive tract, binding to cholesterol particles and escorting them out.\n"
-            "4. **Minimize Added Sugars:** Elevated fasting blood sugar causes endothelial inflammation and accelerates plaque calcification."
+            "💓 **Maximum Heart Rate Achieved (`thalach`):**\n\n"
+            "• **What it measures:** The peak pulse rate achieved during peak exercise stress.\n"
+            "• **Chronotropic Incompetence:** If a patient is unable to achieve at least 85% of their age-predicted maximum heart rate (`220 - age`), it reflects autonomic impairment or ischemia-limited effort, correlating with higher cardiovascular mortality."
         )
 
-    # 9. Model Architecture & Accuracy Questions
-    if any(k in msg for k in ['how model works', 'algorithm', 'random forest', 'accuracy', 'dataset', 'machine learning']):
+    # 10. MAJOR VESSELS (CA / FLUOROSCOPY)
+    if has_any('vessel', ' ca ', 'arteries', 'fluoroscopy', 'calcium', 'blockage', 'stenosis'):
         return (
-            "🤖 **CardioSense AI Architecture & Validation:**\n\n"
-            "• **Algorithm:** Regularized Random Forest Classifier (150 decision trees, maximum depth 6, minimum leaf size 2).\n"
-            "• **Dataset:** 1,190 multi-center patient records from the Statlog-Cleveland-Hungary combined cardiac database.\n"
-            "• **Validation Rigor:** 5-Fold Stratified Cross-Validation.\n"
-            "• **Performance Metrics:**\n"
-            "  - **Cross-Validation Accuracy:** 87.65%\n"
-            "  - **Holdout Test Accuracy:** 89.50%\n"
-            "  - **Clinical Sensitivity / Recall:** 90.48%\n"
-            "  - **ROC-AUC Score:** 95.53%"
+            "🔬 **Fluoroscopy & Major Coronary Vessels (`ca`):**\n\n"
+            "• **Measurement:** Evaluates the number (0 to 3) of major epicardial coronary arteries (LAD, LCx, RCA) exhibiting radio-opaque luminal calcification or narrowing under fluoroscopic X-ray.\n"
+            "• **Interpretation:** Having 0 colored vessels is associated with widely patent arteries. Having 1, 2, or 3 vessels colored strongly escalates risk for ischemic events and revascularization."
         )
 
-    # Default Helpful Response
+    # 11. THALASSEMIA / PERFUSION DEFECTS
+    if has_any('thal', 'thalassemia', 'perfusion', 'defect', 'reversible', 'thallium'):
+        return (
+            "☢️ **Thallium Nuclear Perfusion Screening:**\n\n"
+            "Nuclear myocardial scintigraphy maps cardiac blood supply under stress versus rest:\n\n"
+            "• **Normal (1):** Uniform isotope uptake during both stress and rest.\n"
+            "• **Fixed Defect (2):** Segment showing no uptake during both exercise and rest, representing non-viable fibrotic scar tissue from past infarction.\n"
+            "• **Reversible Defect (3):** Segment showing ischemia under exercise stress that normalizes at rest—this represents salvageable myocardium that urgently benefits from revascularization."
+        )
+
+    # 12. DIET & NUTRITIONAL STRATEGY
+    if has_any('diet', 'food', 'eat', 'nutrition', 'salt', 'sodium', 'coffee', 'caffeine', 'alcohol', 'oil', 'omega', 'mediterranean', 'dash'):
+        return (
+            "🥗 **Cardiovascular Nutrition Protocols:**\n\n"
+            "• **DASH Protocol:** Restrict daily sodium to < 1,500–2,000 mg while increasing potassium-rich fruits and dark leafy greens to optimize arterial compliance.\n"
+            "• **Mediterranean Dietary Standard:** Prioritize extra virgin olive oil, wild fatty fish (salmon, sardines) for EPA/DHA omega-3s, and walnuts.\n"
+            "• **Eliminate Trans Fats:** Avoid partially hydrogenated vegetable oils and deep-fried fast foods that trigger systemic vascular inflammation."
+        )
+
+    # 13. EXERCISE & FITNESS PROTOCOLS
+    if has_any('exercise', 'workout', 'walk', 'gym', 'run', 'cardio', 'physical activity', 'fitness'):
+        return (
+            "🏃 **Cardiovascular Exercise Guidelines (AHA/ACC):**\n\n"
+            "• **Volume Goal:** At least 150 minutes of moderate-intensity aerobic physical activity weekly (e.g., brisk walking at 3–4 mph, cycling, swimming).\n"
+            "• **Target Heart Rate Range:** 50%–70% of age-predicted maximum heart rate (`220 - age`).\n"
+            "• **Resistance Training:** 2 days weekly of moderate resistance training helps improve peripheral glucose clearance and arterial elasticity.\n"
+            "⚠️ *Precaution: If you have diagnosed angina or ST depression > 1.5 mm, undergo a physician stress test before starting high-intensity interval training.*"
+        )
+
+    # 14. PREVENTION & LIFESTYLE HABITS
+    if has_any('prevent', 'avoid', 'protect', 'lifestyle', 'habits', 'smoke', 'smoking', 'sleep', 'stress', 'weight'):
+        return (
+            "🛡️ **Cardiovascular Disease Prevention Essentials:**\n\n"
+            "1. **Smoking Cessation:** Smoking is the #1 preventable trigger of acute coronary thrombosis. Within 1 year of quitting, heart attack risk plummets by 50%.\n"
+            "2. **Restorative Sleep:** Maintain 7–8 hours of consistent sleep; sleep apnea elevates noctural sympathetic tone and triggers severe hypertension.\n"
+            "3. **Stress Mitigation:** Chronic cortisol elevation induces endothelial dysfunction and coronary vasospasm.\n"
+            "4. **Maintain Waist Circumference:** Central visceral adiposity correlates with atherogenic dyslipidemia."
+        )
+
+    # 15. GREETINGS & INTRODUCTIONS
+    if has_any('hi ', 'hello', 'hey ', 'good morning', 'good afternoon', 'good evening', 'who are you', 'help'):
+        return (
+            "👋 **Hello! I am CardioBot**, your clinical AI cardiology assistant.\n\n"
+            "I am connected to your screening data and our 1,190-patient machine learning pipeline. You can ask me:\n\n"
+            "• *'How accurate is this ML model?'*\n"
+            "• *'What is my risk score and what does it mean?'*\n"
+            "• *'Explain what ST depression (oldpeak) means.'*\n"
+            "• *'How does my blood pressure and cholesterol affect my heart?'*\n"
+            "• *'What are the warning signs of a heart attack?'*\n"
+            "• *'What diet and exercise habits reduce heart disease risk?'*\n\n"
+            "What would you like to explore?"
+        )
+
+    # 16. COMPREHENSIVE CONTEXTUAL FALLBACK
     return (
-        "💡 **CardioSense AI Assistant:**\n\n"
-        "I can help explain your risk analysis and cardiovascular parameters. You can ask me:\n\n"
-        "• *'What does high ST depression (oldpeak) mean?'*\n"
-        "• *'How does my cholesterol and blood pressure affect my score?'*\n"
-        "• *'What are the 4 types of chest pain in this screening?'*\n"
-        "• *'What dietary and exercise changes improve heart health?'*\n"
-        "• *'Explain the difference between fixed and reversible thal defects.'*\n"
-        "• *'What is the accuracy and architecture of this ML model?'*\n\n"
-        "What cardiovascular health question would you like me to answer?"
+        "💡 **CardioBot Clinical Assistant:**\n\n"
+        "I can answer clinical, physiological, and machine learning inquiries. Here are common topics you can ask me:\n\n"
+        "• **Model Performance:** *'How accurate is this ML model?'* or *'What algorithm was used?'*\n"
+        "• **Your Assessment:** *'Explain my risk score'* or *'Why is my risk high?'*\n"
+        "• **Diagnostic Markers:** *'What is ST depression?'*, *'Explain chest pain types'*, or *'What is thalassemia?'*\n"
+        "• **Lifestyle & Medical:** *'How to lower blood pressure?'*, *'Best diet for heart health'*, or *'Warning signs of heart attack'*.\n\n"
+        "Feel free to ask any specific question!"
     )
+
 

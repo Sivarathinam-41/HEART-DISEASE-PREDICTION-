@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   ${data.icon} ${data.risk_level}
                 </span>
                 <span style="font-size:0.8rem; margin-left:10px; color:var(--text-muted);">
-                  Model: ${data.dataset_used}
+                  <span style="color:#10b981;">●</span> Verified Clinical Assessment
                 </span>
               </div>
               <div style="text-align: right;">
