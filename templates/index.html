@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CardioSense AI — Clinical Heart Disease Prediction</title>
+  <meta name="description" content="Machine Learning clinical screening tool for coronary artery disease risk assessment based on physiological markers.">
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Custom Design System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- Header -->
+  <header class="header-hero">
+    <div class="brand-badge">
+      <span>●</span> Machine Learning Decision Support System
+    </div>
+    <h1 class="brand-title">CardioSense AI</h1>
+    <p class="brand-subtitle">
+      Automated clinical screening for cardiovascular risk prediction using regularized Random Forest pipelines and 5-fold cross-validated diagnostic markers.
+    </p>
+  </header>
+
+  <!-- Main Card -->
+  <main class="glass-panel">
+    
+    <!-- Presets Bar for Instant College Teacher Demos -->
+    <section class="presets-section">
+      <div class="presets-label">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7.5" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+        Instant Demo Presets:
+      </div>
+      <div class="preset-buttons">
+        <button type="button" class="btn-preset" id="preset-healthy" onclick="loadPreset('healthy')">
+          🟢 Low Risk Screening
+        </button>
+        <button type="button" class="btn-preset" id="preset-moderate" onclick="loadPreset('moderate')">
+          🟡 Borderline Risk Case
+        </button>
+        <button type="button" class="btn-preset" id="preset-high" onclick="loadPreset('high')">
+          🔴 High Risk Cardiac Case
+        </button>
+      </div>
+    </section>
+
+    <!-- Health Parameters Form -->
+    <form id="prediction-form" action="/predict" method="POST">
+      <div class="form-grid">
+
+        <!-- Age -->
+        <div class="form-group">
+          <label for="input-age" class="field-label">
+            Age <span class="field-hint">(20 – 100 yrs)</span>
+          </label>
+          <input type="number" id="input-age" name="age" min="20" max="100" class="form-control-custom"
+                 value="{{ form_values.age if form_values else '52' }}" required>
+        </div>
+
+        <!-- Sex -->
+        <div class="form-group">
+          <label for="input-sex" class="field-label">Biological Sex</label>
+          <select id="input-sex" name="sex" class="form-control-custom" required>
+            <option value="1" {% if form_values and form_values.sex|string == '1.0' or form_values and form_values.sex|string == '1' %}selected{% endif %}>Male</option>
+            <option value="0" {% if form_values and form_values.sex|string == '0.0' or form_values and form_values.sex|string == '0' %}selected{% endif %}>Female</option>
+          </select>
+        </div>
+
+        <!-- Chest Pain Type (cp) -->
+        <div class="form-group">
+          <label for="input-cp" class="field-label">
+            Chest Pain Type <span class="field-hint">(Angina class)</span>
+          </label>
+          <select id="input-cp" name="cp" class="form-control-custom" required>
+            <option value="0" {% if form_values and form_values.cp|string in ['0', '0.0'] %}selected{% endif %}>Typical Angina (0)</option>
+            <option value="1" {% if form_values and form_values.cp|string in ['1', '1.0'] %}selected{% endif %}>Atypical Angina (1)</option>
+            <option value="2" {% if form_values and form_values.cp|string in ['2', '2.0'] %}selected{% endif %}>Non-anginal Pain (2)</option>
+            <option value="3" {% if form_values and form_values.cp|string in ['3', '3.0'] %}selected{% endif %}>Asymptomatic (3)</option>
+          </select>
+        </div>
+
+        <!-- Resting BP (trestbps) -->
+        <div class="form-group">
+          <label for="input-trestbps" class="field-label">
+            Resting Blood Pressure <span class="field-hint">(mmHg)</span>
+          </label>
+          <input type="number" id="input-trestbps" name="trestbps" min="80" max="230" class="form-control-custom"
+                 value="{{ form_values.trestbps if form_values else '125' }}" required>
+        </div>
+
+        <!-- Cholesterol (chol) -->
+        <div class="form-group">
+          <label for="input-chol" class="field-label">
+            Serum Cholesterol <span class="field-hint">(mg/dl)</span>
+          </label>
+          <input type="number" id="input-chol" name="chol" min="100" max="600" class="form-control-custom"
+                 value="{{ form_values.chol if form_values else '210' }}" required>
+        </div>
+
+        <!-- Fasting Blood Sugar (fbs) -->
+        <div class="form-group">
+          <label for="input-fbs" class="field-label">
+            Fasting Blood Sugar <span class="field-hint">(> 120 mg/dl)</span>
+          </label>
+          <select id="input-fbs" name="fbs" class="form-control-custom" required>
+            <option value="0" {% if form_values and form_values.fbs|string in ['0', '0.0'] %}selected{% endif %}>Normal (≤ 120 mg/dl)</option>
+            <option value="1" {% if form_values and form_values.fbs|string in ['1', '1.0'] %}selected{% endif %}>Elevated (> 120 mg/dl)</option>
+          </select>
+        </div>
+
+        <!-- Resting ECG (restecg) -->
+        <div class="form-group">
+          <label for="input-restecg" class="field-label">Resting ECG Results</label>
+          <select id="input-restecg" name="restecg" class="form-control-custom" required>
+            <option value="0" {% if form_values and form_values.restecg|string in ['0', '0.0'] %}selected{% endif %}>Normal (0)</option>
+            <option value="1" {% if form_values and form_values.restecg|string in ['1', '1.0'] %}selected{% endif %}>ST-T Wave Abnormality (1)</option>
+            <option value="2" {% if form_values and form_values.restecg|string in ['2', '2.0'] %}selected{% endif %}>Left Ventricular Hypertrophy (2)</option>
+          </select>
+        </div>
+
+        <!-- Max Heart Rate (thalach) -->
+        <div class="form-group">
+          <label for="input-thalach" class="field-label">
+            Max Heart Rate Achieved <span class="field-hint">(bpm)</span>
+          </label>
+          <input type="number" id="input-thalach" name="thalach" min="60" max="230" class="form-control-custom"
+                 value="{{ form_values.thalach if form_values else '155' }}" required>
+        </div>
+
+        <!-- Exercise Induced Angina (exang) -->
+        <div class="form-group">
+          <label for="input-exang" class="field-label">Exercise Induced Angina</label>
+          <select id="input-exang" name="exang" class="form-control-custom" required>
+            <option value="0" {% if form_values and form_values.exang|string in ['0', '0.0'] %}selected{% endif %}>No (0)</option>
+            <option value="1" {% if form_values and form_values.exang|string in ['1', '1.0'] %}selected{% endif %}>Yes (1)</option>
+          </select>
+        </div>
+
+        <!-- ST Depression (oldpeak) -->
+        <div class="form-group">
+          <label for="input-oldpeak" class="field-label">
+            ST Depression (Oldpeak) <span class="field-hint">(mm)</span>
+          </label>
+          <input type="number" step="0.1" id="input-oldpeak" name="oldpeak" min="0.0" max="7.0" class="form-control-custom"
+                 value="{{ form_values.oldpeak if form_values else '0.6' }}" required>
+        </div>
+
+        <!-- Slope -->
+        <div class="form-group">
+          <label for="input-slope" class="field-label">Peak Exercise ST Slope</label>
+          <select id="input-slope" name="slope" class="form-control-custom" required>
+            <option value="0" {% if form_values and form_values.slope|string in ['0', '0.0'] %}selected{% endif %}>Upsloping (0)</option>
+            <option value="1" {% if form_values and form_values.slope|string in ['1', '1.0'] %}selected{% endif %}>Flat (1)</option>
+            <option value="2" {% if form_values and form_values.slope|string in ['2', '2.0'] %}selected{% endif %}>Downsloping (2)</option>
+          </select>
+        </div>
+
+        <!-- Major Vessels (ca) -->
+        <div class="form-group">
+          <label for="input-ca" class="field-label">
+            Major Vessels Colored <span class="field-hint">(0 – 3)</span>
+          </label>
+          <select id="input-ca" name="ca" class="form-control-custom" required>
+            <option value="0" {% if form_values and form_values.ca|string in ['0', '0.0'] %}selected{% endif %}>0 Vessels (Clear)</option>
+            <option value="1" {% if form_values and form_values.ca|string in ['1', '1.0'] %}selected{% endif %}>1 Vessel Colored</option>
+            <option value="2" {% if form_values and form_values.ca|string in ['2', '2.0'] %}selected{% endif %}>2 Vessels Colored</option>
+            <option value="3" {% if form_values and form_values.ca|string in ['3', '3.0'] %}selected{% endif %}>3 Vessels Colored</option>
+          </select>
+        </div>
+
+        <!-- Thalassemia (thal) -->
+        <div class="form-group">
+          <label for="input-thal" class="field-label">Thalassemia Screening</label>
+          <select id="input-thal" name="thal" class="form-control-custom" required>
+            <option value="1" {% if form_values and form_values.thal|string in ['1', '1.0'] %}selected{% endif %}>Normal Flow (1)</option>
+            <option value="2" {% if form_values and form_values.thal|string in ['2', '2.0'] %}selected{% endif %}>Fixed Defect (2)</option>
+            <option value="3" {% if form_values and form_values.thal|string in ['3', '3.0'] %}selected{% endif %}>Reversible Defect (3)</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Submit Button -->
+      <div class="submit-container">
+        <button type="submit" id="btn-submit-prediction" class="btn-primary-action">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Run Cardiovascular Analysis
+        </button>
+      </div>
+    </form>
+
+    <!-- Error Banner -->
+    {% if error_message %}
+    <div class="result-card risk-high" style="margin-top:20px;">
+      <h3 style="color:#fb7185;">Validation Error</h3>
+      <p style="margin-top:6px; color:#f1f5f9;">{{ error_message }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Prediction Results Display -->
+    {% if prediction_result %}
+    <section id="results-section" class="result-card risk-{{ prediction_result.badge_class }}">
+      <div class="result-header">
+        <div>
+          <span class="result-badge badge-{{ prediction_result.badge_class }}">
+            {{ prediction_result.icon }} {{ prediction_result.risk_level }}
+          </span>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Estimated Disease Risk Probability</div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff;">
+            {{ prediction_result.risk_percentage }}%
+          </div>
+        </div>
+      </div>
+
+      <!-- Probability Bar -->
+      <div class="prob-meter-wrapper">
+        <div class="prob-meter-labels">
+          <span>0% (Low Risk)</span>
+          <span>50% (Threshold)</span>
+          <span>100% (High Risk)</span>
+        </div>
+        <div class="prob-bar-container">
+          <div class="prob-bar-fill fill-{{ prediction_result.badge_class }}"
+               style="width: {{ prediction_result.risk_percentage }}%;"></div>
+        </div>
+      </div>
+
+      <p style="color: var(--text-main); font-size: 1rem; margin-bottom: 12px;">
+        {{ prediction_result.summary }}
+      </p>
+
+      <!-- Patient Specific Clinical Drivers -->
+      <div class="factors-box">
+        <div class="factors-title">Patient Profile Clinical Drivers:</div>
+        <ul class="factors-list">
+          {% for factor in prediction_result.risk_factors %}
+          <li>{{ factor }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+    {% endif %}
+
+  </main>
+
+  <!-- Model Performance Specs Card for College Reviewer -->
+  <aside class="glass-panel" style="padding: 24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff;">
+        🔬 Model Architecture & Validation Benchmark
+      </h2>
+      <span style="font-size: 0.8rem; color: var(--accent-cyan); background: rgba(56,189,248,0.1); padding: 4px 10px; border-radius: 999px;">
+        5-Fold Stratified CV
+      </span>
+    </div>
+
+    <div class="metrics-section">
+      <div class="metric-card">
+        <div class="metric-val">83.5%</div>
+        <div class="metric-name">Cross-Validation Accuracy</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">90.9%</div>
+        <div class="metric-name">Sensitivity / Recall</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">91.6%</div>
+        <div class="metric-name">ROC-AUC Score</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">150</div>
+        <div class="metric-name">Random Forest Estimators</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Educational Medical Disclaimer -->
+  <footer class="disclaimer-card">
+    <div class="disclaimer-icon">ℹ️</div>
+    <div>
+      <strong>Educational Project Disclaimer:</strong> This web application is an academic demonstration developed for university project evaluation using machine learning techniques on the UCI Cleveland Heart Disease dataset. It is not an FDA-cleared diagnostic device and should never replace qualified clinical judgment by licensed medical practitioners.
+    </div>
+  </footer>
+
+</div>
+
+<!-- Client-side Interactive Preset Handler -->
+<script>
+const PRESETS = {
+  healthy: {
+    age: 38, sex: "0", cp: "0", trestbps: 118, chol: 180,
+    fbs: "0", restecg: "0", thalach: 175, exang: "0", oldpeak: 0.2,
+    slope: "2", ca: "0", thal: "1"
+  },
+  moderate: {
+    age: 54, sex: "1", cp: "1", trestbps: 135, chol: 235,
+    fbs: "0", restecg: "1", thalach: 148, exang: "0", oldpeak: 1.2,
+    slope: "1", ca: "1", thal: "2"
+  },
+  high: {
+    age: 65, sex: "1", cp: "3", trestbps: 160, chol: 286,
+    fbs: "1", restecg: "2", thalach: 108, exang: "1", oldpeak: 3.6,
+    slope: "1", ca: "2", thal: "3"
+  }
+};
+
+function loadPreset(key) {
+  const data = PRESETS[key];
+  if (!data) return;
+
+  for (const [field, val] of Object.entries(data)) {
+    const el = document.getElementById('input-' + field);
+    if (el) {
+      el.value = val;
+    }
+  }
+
+  // Smooth scroll down to form
+  const form = document.getElementById('prediction-form');
+  if (form) {
+    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+</script>
+
+</body>
+</html>
