@@ -1,0 +1,41 @@
+{
+  "dataset_name": "Statlog-Cleveland-Hungary Expanded (1,190 records)",
+  "total_samples": 1190,
+  "cross_validation": {
+    "train_accuracy_mean": 0.9277,
+    "cv_accuracy_mean": 0.8765,
+    "cv_accuracy_std": 0.0209,
+    "cv_precision_mean": 0.8767,
+    "cv_recall_mean": 0.8919,
+    "cv_f1_mean": 0.8841,
+    "cv_roc_auc_mean": 0.9399
+  },
+  "holdout_test": {
+    "accuracy": 0.895,
+    "recall": 0.9048,
+    "roc_auc": 0.9553,
+    "confusion_matrix": [
+      [
+        99,
+        13
+      ],
+      [
+        12,
+        114
+      ]
+    ]
+  },
+  "feature_order": [
+    "age",
+    "resting_bp_s",
+    "cholesterol",
+    "max_heart_rate",
+    "oldpeak",
+    "sex",
+    "chest_pain_type",
+    "fasting_blood_sugar",
+    "resting_ecg",
+    "exercise_angina",
+    "st_slope"
+  ]
+}

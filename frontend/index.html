@@ -203,31 +203,31 @@
 
   <!-- Model Performance Specs Card for College Reviewer -->
   <aside class="glass-panel" style="padding: 24px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
       <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff;">
-        🔬 Model Architecture & Validation Benchmark
+        🔬 Model Architecture & Validation Benchmark (Expanded Dataset)
       </h2>
       <span style="font-size: 0.8rem; color: var(--accent-cyan); background: rgba(56,189,248,0.1); padding: 4px 10px; border-radius: 999px;">
-        5-Fold Stratified CV
+        1,190 Patient Records • 5-Fold Stratified CV
       </span>
     </div>
 
     <div class="metrics-section">
       <div class="metric-card">
-        <div class="metric-val">83.5%</div>
+        <div class="metric-val">87.7%</div>
         <div class="metric-name">Cross-Validation Accuracy</div>
       </div>
       <div class="metric-card">
-        <div class="metric-val">90.9%</div>
-        <div class="metric-name">Sensitivity / Recall</div>
+        <div class="metric-val">89.5%</div>
+        <div class="metric-name">Holdout Test Accuracy</div>
       </div>
       <div class="metric-card">
-        <div class="metric-val">91.6%</div>
+        <div class="metric-val">90.5%</div>
+        <div class="metric-name">Clinical Sensitivity / Recall</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">95.5%</div>
         <div class="metric-name">ROC-AUC Score</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-val">150</div>
-        <div class="metric-name">Random Forest Estimators</div>
       </div>
     </div>
   </aside>
