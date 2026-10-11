@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CardioSense AI — Clinical Heart Disease Prediction</title>
+  <title>CardioSense AI — Heart Disease Prediction Web System</title>
   <meta name="description" content="Machine Learning clinical screening tool for coronary artery disease risk assessment based on physiological markers.">
   
   <!-- Modern Fonts -->
@@ -11,8 +11,398 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Custom Design System -->
+  <!-- Fallback External Stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <!-- Inlined Bulletproof Design System (Guarantees zero unstyled HTML on Vercel/Cloud) -->
+  <style>
+    :root {
+      --bg-primary: #0b1329;
+      --bg-secondary: #132042;
+      --bg-card: rgba(19, 32, 66, 0.82);
+      --bg-card-border: rgba(56, 189, 248, 0.22);
+      --bg-input: #1a294e;
+      --border-input: #2e4170;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent-cyan: #38bdf8;
+      --accent-blue: #2563eb;
+      --accent-indigo: #6366f1;
+      --risk-low: #10b981;
+      --risk-med: #f59e0b;
+      --risk-high: #f43f5e;
+      --shadow-card: 0 20px 40px -15px rgba(2, 6, 23, 0.7);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --transition-fast: 0.2s ease;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding: 30px 15px 50px;
+    }
+
+    .app-wrapper { max-width: 1100px; margin: 0 auto; }
+
+    .header-hero { text-align: center; margin-bottom: 35px; }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 999px;
+      color: var(--accent-cyan);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .brand-subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .glass-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: 32px;
+      margin-bottom: 30px;
+    }
+
+    .presets-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .presets-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preset-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn-preset {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-input);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-preset:hover, .btn-preset.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-cyan);
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+
+    .field-label {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .field-hint { font-size: 0.75rem; color: var(--text-dim); font-weight: normal; }
+
+    .form-control-custom {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: var(--radius-sm);
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-family: inherit;
+      transition: var(--transition-fast);
+    }
+
+    .form-control-custom:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+      background: #1e305b;
+    }
+
+    select.form-control-custom option {
+      background: var(--bg-secondary);
+      color: #ffffff;
+    }
+
+    .submit-container { margin-top: 32px; text-align: center; }
+
+    .btn-primary-action {
+      background: linear-gradient(135deg, #2563eb, #0284c7);
+      color: #ffffff;
+      border: none;
+      padding: 15px 42px;
+      border-radius: var(--radius-md);
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.5);
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-primary-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 32px -5px rgba(37, 99, 235, 0.7);
+      background: linear-gradient(135deg, #1d4ed8, #0369a1);
+    }
+
+    .btn-primary-action:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-card {
+      border-left: 6px solid var(--accent-cyan);
+      background: rgba(15, 23, 42, 0.95);
+      margin-top: 28px;
+      padding: 28px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-card.risk-low, .result-card.risk-success {
+      border-left-color: var(--risk-low);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(15, 23, 42, 0.95));
+    }
+
+    .result-card.risk-moderate, .result-card.risk-warning {
+      border-left-color: var(--risk-med);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(15, 23, 42, 0.95));
+    }
+
+    .result-card.risk-high, .result-card.risk-danger {
+      border-left-color: var(--risk-high);
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.12), rgba(15, 23, 42, 0.95));
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+
+    .result-badge.badge-success {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .result-badge.badge-warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .result-badge.badge-danger {
+      background: rgba(244, 63, 94, 0.2);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.4);
+    }
+
+    .prob-meter-wrapper { margin-bottom: 20px; }
+
+    .prob-meter-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .prob-bar-container {
+      height: 14px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .prob-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .prob-bar-fill.fill-low, .prob-bar-fill.fill-success { background: linear-gradient(90deg, #10b981, #34d399); }
+    .prob-bar-fill.fill-warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .prob-bar-fill.fill-high, .prob-bar-fill.fill-danger { background: linear-gradient(90deg, #e11d48, #f43f5e); }
+
+    .factors-box {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 18px;
+      border-radius: var(--radius-sm);
+      margin-top: 15px;
+    }
+
+    .factors-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      margin-bottom: 10px;
+    }
+
+    .factors-list { list-style: none; padding: 0; }
+
+    .factors-list li {
+      font-size: 0.92rem;
+      color: var(--text-main);
+      padding: 5px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .factors-list li::before {
+      content: "•";
+      color: var(--accent-cyan);
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .metrics-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .metric-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      text-align: center;
+    }
+
+    .metric-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .metric-name {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    .disclaimer-card {
+      margin-top: 35px;
+      padding: 18px 24px;
+      border-radius: var(--radius-md);
+      background: rgba(2, 6, 23, 0.6);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+    }
+
+    .disclaimer-icon { font-size: 1.3rem; line-height: 1; }
+
+    @media (max-width: 768px) {
+      .brand-title { font-size: 2.2rem; }
+      .glass-panel { padding: 22px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .presets-section { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
 </head>
 <body>
 
@@ -61,15 +451,15 @@
             Age <span class="field-hint">(20 – 100 yrs)</span>
           </label>
           <input type="number" id="input-age" name="age" min="20" max="100" class="form-control-custom"
-                 value="{{ form_values.age if form_values else '52' }}" required>
+                 value="{{ form_values.age if form_values and form_values.age is defined else '52' }}" required>
         </div>
 
         <!-- Sex -->
         <div class="form-group">
           <label for="input-sex" class="field-label">Biological Sex</label>
           <select id="input-sex" name="sex" class="form-control-custom" required>
-            <option value="1" {% if form_values and form_values.sex|string == '1.0' or form_values and form_values.sex|string == '1' %}selected{% endif %}>Male</option>
-            <option value="0" {% if form_values and form_values.sex|string == '0.0' or form_values and form_values.sex|string == '0' %}selected{% endif %}>Female</option>
+            <option value="1" {% if form_values and form_values.sex|string in ['1', '1.0'] %}selected{% endif %}>Male</option>
+            <option value="0" {% if form_values and form_values.sex|string in ['0', '0.0'] %}selected{% endif %}>Female</option>
           </select>
         </div>
 
@@ -92,7 +482,7 @@
             Resting Blood Pressure <span class="field-hint">(mmHg)</span>
           </label>
           <input type="number" id="input-trestbps" name="trestbps" min="80" max="230" class="form-control-custom"
-                 value="{{ form_values.trestbps if form_values else '125' }}" required>
+                 value="{{ form_values.trestbps if form_values and form_values.trestbps is defined else '125' }}" required>
         </div>
 
         <!-- Cholesterol (chol) -->
@@ -101,7 +491,7 @@
             Serum Cholesterol <span class="field-hint">(mg/dl)</span>
           </label>
           <input type="number" id="input-chol" name="chol" min="100" max="600" class="form-control-custom"
-                 value="{{ form_values.chol if form_values else '210' }}" required>
+                 value="{{ form_values.chol if form_values and form_values.chol is defined else '210' }}" required>
         </div>
 
         <!-- Fasting Blood Sugar (fbs) -->
@@ -131,7 +521,7 @@
             Max Heart Rate Achieved <span class="field-hint">(bpm)</span>
           </label>
           <input type="number" id="input-thalach" name="thalach" min="60" max="230" class="form-control-custom"
-                 value="{{ form_values.thalach if form_values else '155' }}" required>
+                 value="{{ form_values.thalach if form_values and form_values.thalach is defined else '155' }}" required>
         </div>
 
         <!-- Exercise Induced Angina (exang) -->
@@ -149,7 +539,7 @@
             ST Depression (Oldpeak) <span class="field-hint">(mm)</span>
           </label>
           <input type="number" step="0.1" id="input-oldpeak" name="oldpeak" min="0.0" max="7.0" class="form-control-custom"
-                 value="{{ form_values.oldpeak if form_values else '0.6' }}" required>
+                 value="{{ form_values.oldpeak if form_values and form_values.oldpeak is defined else '0.6' }}" required>
         </div>
 
         <!-- Slope -->
@@ -191,64 +581,62 @@
       <div class="submit-container">
         <button type="submit" id="btn-submit-prediction" class="btn-primary-action">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          Run Cardiovascular Analysis
+          <span id="btn-label">Run Cardiovascular Analysis</span>
         </button>
       </div>
     </form>
 
     <!-- Error Banner -->
-    {% if error_message %}
-    <div class="result-card risk-high" style="margin-top:20px;">
+    <div id="error-card" class="result-card risk-high" style="{% if not error_message %}display:none;{% endif %} margin-top:20px;">
       <h3 style="color:#fb7185;">Validation Error</h3>
-      <p style="margin-top:6px; color:#f1f5f9;">{{ error_message }}</p>
+      <p id="error-text" style="margin-top:6px; color:#f1f5f9;">{{ error_message if error_message else '' }}</p>
     </div>
-    {% endif %}
 
-    <!-- Prediction Results Display -->
-    {% if prediction_result %}
-    <section id="results-section" class="result-card risk-{{ prediction_result.badge_class }}">
-      <div class="result-header">
-        <div>
-          <span class="result-badge badge-{{ prediction_result.badge_class }}">
-            {{ prediction_result.icon }} {{ prediction_result.risk_level }}
-          </span>
-        </div>
-        <div style="text-align: right;">
-          <div style="font-size: 0.85rem; color: var(--text-muted);">Estimated Disease Risk Probability</div>
-          <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff;">
-            {{ prediction_result.risk_percentage }}%
+    <!-- Live / Server-Rendered Prediction Results Container -->
+    <div id="results-container">
+      {% if prediction_result %}
+      <section id="results-section" class="result-card risk-{{ prediction_result.badge_class }}">
+        <div class="result-header">
+          <div>
+            <span class="result-badge badge-{{ prediction_result.badge_class }}">
+              {{ prediction_result.icon }} {{ prediction_result.risk_level }}
+            </span>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Estimated Disease Risk Probability</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff;">
+              {{ prediction_result.risk_percentage }}%
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Probability Bar -->
-      <div class="prob-meter-wrapper">
-        <div class="prob-meter-labels">
-          <span>0% (Low Risk)</span>
-          <span>50% (Threshold)</span>
-          <span>100% (High Risk)</span>
+        <div class="prob-meter-wrapper">
+          <div class="prob-meter-labels">
+            <span>0% (Low Risk)</span>
+            <span>50% (Threshold)</span>
+            <span>100% (High Risk)</span>
+          </div>
+          <div class="prob-bar-container">
+            <div class="prob-bar-fill fill-{{ prediction_result.badge_class }}"
+                 style="width: {{ prediction_result.risk_percentage }}%;"></div>
+          </div>
         </div>
-        <div class="prob-bar-container">
-          <div class="prob-bar-fill fill-{{ prediction_result.badge_class }}"
-               style="width: {{ prediction_result.risk_percentage }}%;"></div>
+
+        <p style="color: var(--text-main); font-size: 1rem; margin-bottom: 12px;">
+          {{ prediction_result.summary }}
+        </p>
+
+        <div class="factors-box">
+          <div class="factors-title">Patient Profile Clinical Drivers:</div>
+          <ul class="factors-list">
+            {% for factor in prediction_result.risk_factors %}
+            <li>{{ factor }}</li>
+            {% endfor %}
+          </ul>
         </div>
-      </div>
-
-      <p style="color: var(--text-main); font-size: 1rem; margin-bottom: 12px;">
-        {{ prediction_result.summary }}
-      </p>
-
-      <!-- Patient Specific Clinical Drivers -->
-      <div class="factors-box">
-        <div class="factors-title">Patient Profile Clinical Drivers:</div>
-        <ul class="factors-list">
-          {% for factor in prediction_result.risk_factors %}
-          <li>{{ factor }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </section>
-    {% endif %}
+      </section>
+      {% endif %}
+    </div>
 
   </main>
 
@@ -293,7 +681,7 @@
 
 </div>
 
-<!-- Client-side Interactive Preset Handler -->
+<!-- Client-side Interactive Preset Handler & Asynchronous AJAX Predictor -->
 <script>
 const PRESETS = {
   healthy: {
@@ -317,19 +705,107 @@ function loadPreset(key) {
   const data = PRESETS[key];
   if (!data) return;
 
+  // Active button styling
+  document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('preset-' + key);
+  if (activeBtn) activeBtn.classList.add('active');
+
   for (const [field, val] of Object.entries(data)) {
     const el = document.getElementById('input-' + field);
-    if (el) {
-      el.value = val;
-    }
-  }
-
-  // Smooth scroll down to form
-  const form = document.getElementById('prediction-form');
-  if (form) {
-    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (el) el.value = val;
   }
 }
+
+// Client-side AJAX Prediction Handler (Provides instant SPA UX on Vercel)
+document.getElementById('prediction-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const submitBtn = document.getElementById('btn-submit-prediction');
+  const btnLabel = document.getElementById('btn-label');
+  const errorCard = document.getElementById('error-card');
+  const resultsContainer = document.getElementById('results-container');
+
+  errorCard.style.display = 'none';
+  submitBtn.disabled = true;
+  btnLabel.textContent = 'Analyzing Diagnostic Indicators...';
+
+  // Harvest form data
+  const formData = new FormData(this);
+  const payload = {};
+  formData.forEach((val, key) => { payload[key] = parseFloat(val); });
+
+  try {
+    const response = await fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.error || 'Prediction analysis failed.');
+    }
+
+    const data = result.data;
+    const badgeClass = data.badge_class || (data.risk_percentage < 35 ? 'success' : data.risk_percentage < 65 ? 'warning' : 'danger');
+
+    // Build dynamic results card
+    resultsContainer.innerHTML = `
+      <section id="results-section" class="result-card risk-${badgeClass}">
+        <div class="result-header">
+          <div>
+            <span class="result-badge badge-${badgeClass}">
+              ${data.icon} ${data.risk_level}
+            </span>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Estimated Disease Risk Probability</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: #ffffff;">
+              ${data.risk_percentage}%
+            </div>
+          </div>
+        </div>
+
+        <div class="prob-meter-wrapper">
+          <div class="prob-meter-labels">
+            <span>0% (Low Risk)</span>
+            <span>50% (Threshold)</span>
+            <span>100% (High Risk)</span>
+          </div>
+          <div class="prob-bar-container">
+            <div class="prob-bar-fill fill-${badgeClass}" style="width: ${data.risk_percentage}%;"></div>
+          </div>
+        </div>
+
+        <p style="color: var(--text-main); font-size: 1rem; margin-bottom: 12px;">
+          ${data.summary}
+        </p>
+
+        <div class="factors-box">
+          <div class="factors-title">Patient Profile Clinical Drivers:</div>
+          <ul class="factors-list">
+            ${data.risk_factors.map(f => `<li>${f}</li>`).join('')}
+          </ul>
+        </div>
+      </section>
+    `;
+
+    // Smooth scroll to results
+    const resultsEl = document.getElementById('results-section');
+    if (resultsEl) {
+      resultsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+  } catch (err) {
+    // If client fetch fails (e.g. cross-origin), submit standard POST form
+    console.warn("Client fetch error, submitting via standard POST:", err);
+    this.submit();
+  } finally {
+    submitBtn.disabled = false;
+    btnLabel.textContent = 'Run Cardiovascular Analysis';
+  }
+});
 </script>
 
 </body>
